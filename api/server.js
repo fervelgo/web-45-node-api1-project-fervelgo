@@ -1,29 +1,29 @@
 const express = require('express');
 const server = express();
-const Dog = require('./users/model');
+const User = require('./users/model');
 
 
 server.use(express.json());
 
 
-server.get('/api/dogs', (req, res) => {
-    Dog.find()
-        .then( dogs => {
-            res.status(200).json(dogs)
+server.get('/api/users', (req, res) => {
+    User.find()
+        .then(users => {
+            res.status(200).json(users)
         })
         .catch( err => {
             res.status(500).json({ message: err.message})
         });
 });
 
-server.get('/api/dogs/:id', (req, res) => {
+server.get('/api/users/:id', (req, res) => {
     const { id } = req.params
-    Dog.findBy(id)
-        .then( dogs => {
-            if (dogs) {
-                res.status(200).json(dogs)    
+    User.findBy(id)
+        .then( users => {
+            if (users) {
+                res.status(200).json(users)    
             } else {
-            res.status(404).json({message: `Dog with ${id} not found`})
+            res.status(404).json({message: `user with ${id} not found`})
             }
         })
         .catch( err => {
@@ -31,26 +31,45 @@ server.get('/api/dogs/:id', (req, res) => {
         });
 });
 
-server.put('api/dogs/:id', (req, res) => {
+server.put('api/users/:id', (req, res) => {
     const { id } = req.params
-    const { name, weight } = req.body
+    const { name, bio } = req.body
 
-    Dog.update(id, {name, weight})
-    .then(updateDog => {
-        if(!updateDog) {
-            res.status(404).json({ message: `Could not find dog ${id}`})
+    User.update(id, {name, bio})
+    .then(updateUser => {
+        if(!updateUser) {
+            res.status(404).json({ message: `Could not find user ${id}`})
         } else {
-            res.status(200).json(updateDog)
+            res.status(200).json(updateUser)
         }
     })
-    .catch( err => {
+    .catch( () => {
         res.status(500).json({message: 'No editing happened here yo'})
     })
 
 })
 
+server.post('/api/users/', (req,res) => {
+    const { name, bio } = req.body
+    User.insert({ name, bio })
+    .then(user => {
+        res.status(201).json(user)
+    })
+    .catch(err => {
+        res.status(500).json({ message: err.message })
+    })
+})
+
+server.delete('api/users/:id', (req,res) => {
+    const { id } = req.params
+    User.remove(id)
+    .then(deletedUser => {
+        if(deletedUser) {
+            res.json(deletedUser)    
+        } else {
+            res.status(404).json({ message: `User ${id} not found`})
+        }
+})
 
 
-
-
-module.exports = server; // EXPORT YOUR SERVER instead of {}
+module.exports = server; 
